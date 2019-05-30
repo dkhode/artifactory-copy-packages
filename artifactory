@@ -1,0 +1,12 @@
+# We will perform copy/move packages using AQL(Artifactory Query Language):
+$ cat test.aql
+items.find({ "$and": [{"repo": "rpm-local"},{"name": {"$match": "*.rpm"}}]})
+
+$ curl <artifactory_url>/api/search/aql -XPOST -H "content-type: text/plain" -T test.aql -u admin >>file.txt
+# it will generate a list of packages
+
+#!/bin/bash
+while read p; do
+  curl -u admin:admin123 "<artifactory_url>/api/move/libs-release-local/$p?to/snapshotrepo-rpm/$p" -XPOST
+done < file.txt
+echo "done"
